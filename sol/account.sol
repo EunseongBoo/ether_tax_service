@@ -1,6 +1,8 @@
 pragma solidity ^0.4.19;
 
-contract account {
+import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
+
+contract account is usingOraclize,Ownable {
 
     event newAccount(uint uid, string name);
 
