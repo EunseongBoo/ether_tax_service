@@ -4,13 +4,15 @@ import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 
 contract test is usingOraclize,Ownable {
 
-    address owner;
-    address dst;
-    uint id;
-    bool withdrawn;
-  
+    event newUser(uint uid);
+
+    struct user {
+      uint uid;
+      uint balance;
+      bool withdrawn;
+    }
+
     function test(address _dst, uint _id) public payable {
-        owner = msg.sender;
         dst = _dst;
         id = _id;
         withdrawn = false;
