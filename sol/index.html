@@ -5,31 +5,88 @@
     <title>Ethereum_tax_service front-end</title>
     <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script language="javascript" type="text/javascript" src="web3.min.js"></script>
-    <script language="javascript" type="text/javascript" src="taxService_abi.js"></script>
   </head>
   <body>
+    <div id="txStatus"></div>
+    <div id="users"></div>
 
     <script>
 
+      //You need to
+      //npm install web3
+      //npm install abi-decoder
+      //npm install ethereumjs-testrpc
+      const fs = require('fs'),
+            abiDecoder = require('abi-decoder'),
+            solc = require('solc');
+
+      const input = fs.readFileSync('./user.sol');
+      const output = solc.compile(input.toString(), 1);
+      const bytecode = output.contracts[':User'].bytecode;
+      const abi = JSON.parse(output.contracts[':User'].interface);
+
+      //let provider = new web3js.providers.HttpProvider("http://localhost:8545");
+      //const web3 = new web3js(provider);
+      //let Voting = new web3js.eth.Contract(abi);
+
+      abiDecoder.addABI(abi);
       var users;
       var userAccount;
 
       function startApp() {
-        var taxServiceAddress = "YOUR_CONTRACT_ADDRESS";
+        //var taxServiceAddress = "YOUR_CONTRACT_ADDRESS";
+        var taxServiceAddress = "0x1eae2582cdaa8970431a8b1066f4324c6293972a";
         taxService = new web3js.eth.Contract(taxServiceABI, taxServiceAddress);
         var accountInterval = setInterval(function() {
           // Check if account has changed
           if (web3.eth.accounts[0] !== userAccount) {
             userAccount = web3.eth.accounts[0];
             // Call some function to update the UI with the new account
-
-            //getUserDetailsByAddress(owner).then(displayUserInfo);
+            getUserIdByAddress(owner).then(displayUserInfo);
           }
         }, 100);
       }
 
-      function getUserDetailsByAddress(owner){
-          // taxService.methods.ownerToNum(owner).call();
+      function displayUserInfo(id) {
+        $("#users").empty();
+        for (id of ids) {
+          // Look up zombie details from our contract. Returns a `zombie` object
+          getUserDetails(id)
+          .then(function(user) {
+            // Using ES6's "template literals" to inject variables into the HTML.
+            // Append each one to our #zombies div
+            $("#usres").append(`<div class="user">
+              <ul>
+                <li>UID: ${user.uid}</li>
+                <li>DNA: ${user.balance}</li>
+                <li>Fee: ${user.fee_krw}</li>
+                <li>Withdrawn: ${user.withdrawn}</li>
+              </ul>
+            </div>`);
+          });
+        }
+      }
+
+      function createUser(uid) {
+        // This is going to take a while, so update the UI to let the user know
+        // the transaction has been sent
+        $("#txStatus").text("Creating new account on the blockchain. This may take a while...");
+        // Send the tx to our contract:
+        return taxService.methods.createUser(uid)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Successfully created " + uid + "!");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+          getUserIdByAddress(userAccount).then(displayUserInfo);
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
+
+      function getUserIdByAddress(owner){
+          return taxService.methods.ownerToId(owner).call();
       }
 
       function getUserDetails(id) {
@@ -37,7 +94,7 @@
       }
 
       function getUserIdByAddress(owner) {
-        return taxService.methods.(id).ownerToId(owner).call();
+        return taxService.methods.ownerToId(owner).call();
       }
 
       function getUserIdByUid(uid) {
