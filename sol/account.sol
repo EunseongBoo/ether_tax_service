@@ -11,7 +11,7 @@ contract account is usingOraclize,Ownable {
         string name;
         uint balance;
     }
-    
+
     Account[] public accounts;
 
     mapping (uint => address) public accountToOwner;
