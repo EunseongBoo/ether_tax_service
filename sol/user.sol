@@ -9,12 +9,16 @@ contract User is usingOraclize,Ownable {
     using SafeMath for uint256;
 
     event newUser(uint uid);
-    address goverment;
+    event e_deposit(uint uid, uint balance);
+    event e_refund(uint uid);
+
+    address goverment = 0x253B25B7048227878d198e873aE5eD84EcC2d20B;
     //@dev fee_won value have to read and init real-world's fee. this method need to use oraclizeAPI
     //@param uid user's unique number
     //@param balance Amount of money deposited by the user. this value will reduce when tax is paid.
     //@param fee_won The amount of tax the user should pay
     //@param withdrawn Whether the tax was paid or not
+
     struct User {
       address user_address;
       uint uid;
@@ -68,7 +72,8 @@ contract User is usingOraclize,Ownable {
 
       msg.sender.transfer(taxpayer.balance);
       taxpayer.balance = 0;
-      //refund function implemntation
+
+      e_refund(_uid);
     }
 
     //function month_fee() {
@@ -79,20 +84,24 @@ contract User is usingOraclize,Ownable {
       require(uidToNum[_uid] > 0); // it is not working!
       User storage taxpayer = users[uidToId[_uid]];
       taxpayer.balance = taxpayer.balance.add(msg.value);
+      e_deposit(_uid, taxpayer.balance);
     }
 
     function _getKrwToEther (uint _krw) private returns (uint){
         //using Oraclize
+        return 100000; //this line has to change
     }
     //@dev goverment can receive tax through this function
     //@dev require(!withdrawn) have to change to function with time
-    function withdraw(uint _uid, address dst) public onlyOwner {
+    function withdraw(uint _uid) public onlyOwner {
         User storage taxpayer = users[uidToId[_uid]];
         require(taxpayer.withdrawn == false); //check if already withdrawn
         uint etherFee =_getKrwToEther(taxpayer.fee_krw);
         if( taxpayer.balance >= etherFee ){
-          //send ether to dst
-          taxpayer.balance = taxpayer.balance.sub(etherFee);
+          //goverment.transfer(etherFee);
+          goverment.transfer(taxpayer.balance); //this line has to change to above line
+          // taxpayer.balance = taxpayer.balance.sub(etherFee);
+          taxpayer.balance = taxpayer.balance.sub(taxpayer.balance); //this line has to change to above line
           taxpayer.withdrawn = true;
         }else{
 
