@@ -11,36 +11,346 @@
     <div id="users"></div>
 
     <script>
-
-      //You need to
-      //npm install web3
-      //npm install abi-decoder
-      //npm install ethereumjs-testrpc
-      const fs = require('fs'),
-            abiDecoder = require('abi-decoder'),
-            solc = require('solc');
-
-      const input = fs.readFileSync('./user.sol');
-      const output = solc.compile(input.toString(), 1);
-      const bytecode = output.contracts[':User'].bytecode;
-      const abi = JSON.parse(output.contracts[':User'].interface);
-
-      //let provider = new web3js.providers.HttpProvider("http://localhost:8545");
-      //const web3 = new web3js(provider);
-      //let Voting = new web3js.eth.Contract(abi);
-
-      abiDecoder.addABI(abi);
       var users;
       var userAccount;
 
       function startApp() {
-        //var taxServiceAddress = "YOUR_CONTRACT_ADDRESS";
-        var taxServiceAddress = "0x1eae2582cdaa8970431a8b1066f4324c6293972a";
-        taxService = new web3js.eth.Contract(taxServiceABI, taxServiceAddress);
+        taxServiceABI = [
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "uidToId",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "userToOwner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "ownerToNum",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_uid",
+				"type": "uint256"
+			}
+		],
+		"name": "refund",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "myid",
+				"type": "bytes32"
+			},
+			{
+				"name": "result",
+				"type": "string"
+			}
+		],
+		"name": "__callback",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_uid",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "users",
+		"outputs": [
+			{
+				"name": "user_address",
+				"type": "address"
+			},
+			{
+				"name": "uid",
+				"type": "uint256"
+			},
+			{
+				"name": "balance",
+				"type": "uint256"
+			},
+			{
+				"name": "fee_krw",
+				"type": "uint256"
+			},
+			{
+				"name": "withdrawn",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "myid",
+				"type": "bytes32"
+			},
+			{
+				"name": "result",
+				"type": "string"
+			},
+			{
+				"name": "proof",
+				"type": "bytes"
+			}
+		],
+		"name": "__callback",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_uid",
+				"type": "uint256"
+			}
+		],
+		"name": "checkUserInfo",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_uid",
+				"type": "uint256"
+			}
+		],
+		"name": "deposit",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "ownerToId",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "uidToNum",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_uid",
+				"type": "uint256"
+			}
+		],
+		"name": "createUser",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "uid",
+				"type": "uint256"
+			}
+		],
+		"name": "newUser",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "uid",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "balance",
+				"type": "uint256"
+			}
+		],
+		"name": "e_deposit",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "uid",
+				"type": "uint256"
+			}
+		],
+		"name": "e_refund",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	}
+]
+
+        var taxServiceAddress = "0x4057459decf034bfdee6ca003d53089677f97d14";
+        taxService = new web3.eth.Contract(taxServiceABI, taxServiceAddress);
         var accountInterval = setInterval(function() {
           // Check if account has changed
           if (web3.eth.accounts[0] !== userAccount) {
             userAccount = web3.eth.accounts[0];
+            $("#txStatus").text("33");
             // Call some function to update the UI with the new account
             getUserIdByAddress(owner).then(displayUserInfo);
           }
@@ -85,6 +395,58 @@
         });
       }
 
+      function deposit(uid, val) {
+        // This is going to take a while, so update the UI to let the user know
+        // the transaction has been sent
+        $("#txStatus").text("Refund!. This may take a while...");
+        // Send the tx to our contract:
+        return taxService.methods.deposit(uid)
+        .send({ from: userAccount, value: web3.utils.toWei(val, "ether") })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Successfully deposit uid: " + uid + "!");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+          getUserIdByAddress(userAccount).then(displayUserInfo);
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
+
+      function refund(uid){
+        // This is going to take a while, so update the UI to let the user know
+        // the transaction has been sent
+        $("#txStatus").text("Refund!. This may take a while...");
+        // Send the tx to our contract:
+        return taxService.methods.refund(uid)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Successfully refunded " + uid + "!");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+          getUserIdByAddress(userAccount).then(displayUserInfo);
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
+
+      function withdraw(uid){
+        $("#txStatus").text("Tax process. This may take a while...");
+        // Send the tx to our contract:
+        return taxService.methods.withdraw(uid)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Successfully tax paied uid: " + uid + "!");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+          getUserIdByAddress(userAccount).then(displayUserInfo);
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
+
       function getUserIdByAddress(owner){
           return taxService.methods.ownerToId(owner).call();
       }
@@ -106,11 +468,13 @@
         // Checking if Web3 has been injected by the browser (Mist/MetaMask)
         if (typeof web3 !== 'undefined') {
           // Use Mist/MetaMask's provider
-          web3js = new Web3(web3.currentProvider);
+          web3 = new Web3(web3.currentProvider);
+          $("#txStatus").text("11111");
         } else {
           // Handle the case where the user doesn't have Metamask installed
           // Probably show them a message prompting them to install Metamask
-          //
+          web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+          $("#txStatus").text("2222");
         }
 
         // Now you can start your app & access web3 freely:
