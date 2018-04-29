@@ -6,7 +6,7 @@ import "./safemath.sol";
 
 contract User is usingOraclize,Ownable {
 
-    using safeMath for uint256;
+    using SafeMath for uint256;
 
     event newUser(uint uid);
     address goverment;
@@ -16,10 +16,10 @@ contract User is usingOraclize,Ownable {
     //@param fee_won The amount of tax the user should pay
     //@param withdrawn Whether the tax was paid or not
     struct User {
-      address owner;
+      address user_address;
       uint uid;
       uint balance;
-      uint fee_won;
+      uint fee_krw;
       bool withdrawn;
     }
 
@@ -28,45 +28,60 @@ contract User is usingOraclize,Ownable {
     mapping (uint => address) public userToOwner;
     mapping (uint => uint) public uidToId;
     mapping (uint => uint) public uidToNum;
-
+    mapping (address => uint) public ownerToNum;
+    mapping (address => uint) public ownerToId;
     //@notice this function need to add more line to use Oraclize and get rmaining tax
-    function _getFeeWon (uint id, uint _uid) internal return (bool){
-      require(_user);
+    function _getFeeWon (uint id, uint _uid) internal {
+      //require(_user);
+      users[id].fee_krw = 100000;
     }
 
     //@dev this function create user and init the value.
     //@notice this function need to add the function to fill fee_won. this method is need to use Oraclize.
     function createUser(uint _uid) public {
       require(uidToNum[_uid] == 0);
-      uint id = users.push(User(msg.sender,_id,0,0,false)) - 1;
+      uint id = users.push(User(msg.sender,_uid,0,0,false)) - 1;
       userToOwner[id] = msg.sender;
       uidToId[_uid] = id;
-      uidToNum[_uid].append(1);
+      uidToNum[_uid]++;
+      ownerToId[msg.sender] = id;
+      ownerToNum[msg.sender]++;
       _getFeeWon(id,_uid);
 
       newUser(_uid);
     }
 
-    function checkUserInfo(uint _uid) external view {
+    function checkUserInfo(uint _uid) external view  {
       require(userToOwner[uidToId[_uid]] == msg.sender);
       //send info to web3.js
+      //return userToOwner[uidToId[_uid]];
     }
 
     function refund(uint _uid) public {
       require(userToOwner[uidToId[_uid]] == msg.sender);
+      User storage taxpayer = users[uidToId[_uid]];
+      uint balance = address(this).balance;
+
+       if (balance < taxpayer.balance) {
+           taxpayer.balance = balance;
+       }
+
+      msg.sender.transfer(taxpayer.balance);
+      taxpayer.balance = 0;
       //refund function implemntation
     }
 
-    function month_fee(){
+    //function month_fee() {
+    //
+    //}
 
+    function deposit(uint _uid) payable {
+      require(uidToNum[_uid] > 0); // it is not working!
+      User storage taxpayer = users[uidToId[_uid]];
+      taxpayer.balance = taxpayer.balance.add(msg.value);
     }
 
-    function deposit(uint _uid, uint _balance){
-      require(userToOwner[uidToId[_uid]] == msg.sender);
-
-    }
-
-    function _getKrwToEther (uint id, uint _uid) private return (uint){
+    function _getKrwToEther (uint _krw) private returns (uint){
         //using Oraclize
     }
     //@dev goverment can receive tax through this function
@@ -74,7 +89,7 @@ contract User is usingOraclize,Ownable {
     function withdraw(uint _uid, address dst) public onlyOwner {
         User storage taxpayer = users[uidToId[_uid]];
         require(taxpayer.withdrawn == false); //check if already withdrawn
-        uint etherFee =_getKrwToEther(taxpayer.fee_won);
+        uint etherFee =_getKrwToEther(taxpayer.fee_krw);
         if( taxpayer.balance >= etherFee ){
           //send ether to dst
           taxpayer.balance = taxpayer.balance.sub(etherFee);

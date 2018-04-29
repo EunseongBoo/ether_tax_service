@@ -5,25 +5,44 @@
     <title>Ethereum_tax_service front-end</title>
     <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script language="javascript" type="text/javascript" src="web3.min.js"></script>
-    <script language="javascript" type="text/javascript" src="_abi.js"></script> 
+    <script language="javascript" type="text/javascript" src="taxService_abi.js"></script>
   </head>
   <body>
 
     <script>
+
       var users;
+      var userAccount;
 
       function startApp() {
         var taxServiceAddress = "YOUR_CONTRACT_ADDRESS";
         taxService = new web3js.eth.Contract(taxServiceABI, taxServiceAddress);
+        var accountInterval = setInterval(function() {
+          // Check if account has changed
+          if (web3.eth.accounts[0] !== userAccount) {
+            userAccount = web3.eth.accounts[0];
+            // Call some function to update the UI with the new account
+
+            //getUserDetailsByAddress(owner).then(displayUserInfo);
+          }
+        }, 100);
+      }
+
+      function getUserDetailsByAddress(owner){
+          // taxService.methods.ownerToNum(owner).call();
       }
 
       function getUserDetails(id) {
-        return taxService.methods.users(id).call()
+        return taxService.methods.users(id).call();
       }
 
-      // 1. Define `zombieToOwner` here
+      function getUserIdByAddress(owner) {
+        return taxService.methods.(id).ownerToId(owner).call();
+      }
 
-      // 2. Define `getZombiesByOwner` here
+      function getUserIdByUid(uid) {
+        return taxService.methods.uidToId(uid).call();
+      }
 
       window.addEventListener('load', function() {
 
@@ -34,10 +53,11 @@
         } else {
           // Handle the case where the user doesn't have Metamask installed
           // Probably show them a message prompting them to install Metamask
+          //
         }
 
         // Now you can start your app & access web3 freely:
-        startApp()
+        startApp();
 
       })
     </script>
