@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../web3.js-develop/dist/web3.min.js"></script>
+    <title>Simple Wallet</title>
+</head>
+<body>
+  <script>
+
+
+
+    //console.log(json);
+    function startApp(){
+      var abi = JSON.parse([
+      	{
+      		"anonymous": false,
+      		"inputs": [
+      			{
+      				"indexed": true,
+      				"name": "previousOwner",
+      				"type": "address"
+      			},
+      			{
+      				"indexed": true,
+      				"name": "newOwner",
+      				"type": "address"
+      			}
+      		],
+      		"name": "OwnershipTransferred",
+      		"type": "event"
+      	},
+      	{
+      		"constant": false,
+      		"inputs": [
+      			{
+      				"name": "myid",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "result",
+      				"type": "string"
+      			}
+      		],
+      		"name": "__callback",
+      		"outputs": [],
+      		"payable": false,
+      		"stateMutability": "nonpayable",
+      		"type": "function"
+      	},
+      	{
+      		"constant": false,
+      		"inputs": [
+      			{
+      				"name": "myid",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "result",
+      				"type": "string"
+      			},
+      			{
+      				"name": "proof",
+      				"type": "bytes"
+      			}
+      		],
+      		"name": "__callback",
+      		"outputs": [],
+      		"payable": false,
+      		"stateMutability": "nonpayable",
+      		"type": "function"
+      	},
+      	{
+      		"constant": false,
+      		"inputs": [
+      			{
+      				"name": "_uid",
+      				"type": "uint256"
+      			}
+      		],
+      		"name": "createUser",
+      		"outputs": [],
+      		"payable": false,
+      		"stateMutability": "nonpayable",
+      		"type": "function"
+      	},
+      	{
+      		"constant": false,
+      		"inputs": [
+      			{
+      				"name": "_uid",
+      				"type": "uint256"
+      			}
+      		],
+      		"name": "deposit",
+      		"outputs": [],
+      		"payable": true,
+      		"stateMutability": "payable",
+      		"type": "function"
+      	},
+      	{
+      		"constant": false,
+      		"inputs": [
+      			{
+      				"name": "_uid",
+      				"type": "uint256"
+      			}
+      		],
+      		"name": "refund",
+      		"outputs": [],
+      		"payable": false,
+      		"stateMutability": "nonpayable",
+      		"type": "function"
+      	},
+      	{
+      		"constant": false,
+      		"inputs": [
+      			{
+      				"name": "newOwner",
+      				"type": "address"
+      			}
+      		],
+      		"name": "transferOwnership",
+      		"outputs": [],
+      		"payable": false,
+      		"stateMutability": "nonpayable",
+      		"type": "function"
+      	},
+      	{
+      		"constant": false,
+      		"inputs": [
+      			{
+      				"name": "_uid",
+      				"type": "uint256"
+      			},
+      			{
+      				"name": "dst",
+      				"type": "address"
+      			}
+      		],
+      		"name": "withdraw",
+      		"outputs": [],
+      		"payable": false,
+      		"stateMutability": "nonpayable",
+      		"type": "function"
+      	},
+      	{
+      		"anonymous": false,
+      		"inputs": [
+      			{
+      				"indexed": false,
+      				"name": "uid",
+      				"type": "uint256"
+      			}
+      		],
+      		"name": "newUser",
+      		"type": "event"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [
+      			{
+      				"name": "_uid",
+      				"type": "uint256"
+      			}
+      		],
+      		"name": "checkUserInfo",
+      		"outputs": [],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [],
+      		"name": "owner",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "address"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [
+      			{
+      				"name": "",
+      				"type": "address"
+      			}
+      		],
+      		"name": "ownerToId",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "uint256"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [
+      			{
+      				"name": "",
+      				"type": "address"
+      			}
+      		],
+      		"name": "ownerToNum",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "uint256"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [
+      			{
+      				"name": "",
+      				"type": "uint256"
+      			}
+      		],
+      		"name": "uidToId",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "uint256"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [
+      			{
+      				"name": "",
+      				"type": "uint256"
+      			}
+      		],
+      		"name": "uidToNum",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "uint256"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [
+      			{
+      				"name": "",
+      				"type": "uint256"
+      			}
+      		],
+      		"name": "users",
+      		"outputs": [
+      			{
+      				"name": "user_address",
+      				"type": "address"
+      			},
+      			{
+      				"name": "uid",
+      				"type": "uint256"
+      			},
+      			{
+      				"name": "balance",
+      				"type": "uint256"
+      			},
+      			{
+      				"name": "fee_krw",
+      				"type": "uint256"
+      			},
+      			{
+      				"name": "withdrawn",
+      				"type": "bool"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [
+      			{
+      				"name": "",
+      				"type": "uint256"
+      			}
+      		],
+      		"name": "userToOwner",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "address"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	}
+      ]
+);
+      console.log(abi);
+
+      var ad = "0x4057459decf034bfdee6ca003d53089677f97d14";
+
+      var tax = new web3.ether.Contract(abi,ad);
+      console.log(tax);
+
+    }
+
+
+    window.addEventListener('load', function() {
+      if (typeof window.web3 !== 'undefined') {
+        web3 = new Web3(web3.currentProvider);
+      } else {
+        // set the provider you want from Web3.providers
+        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+      }
+      console.log(window.web3);
+
+      startApp();
+    });
+
+  </script>
+</body>
+</html>
