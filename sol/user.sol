@@ -57,8 +57,6 @@ contract User is usingOraclize,Ownable {
 
     function checkUserInfo(uint _uid) external view  {
       require(userToOwner[uidToId[_uid]] == msg.sender);
-      //send info to web3.js
-      //return userToOwner[uidToId[_uid]];
     }
 
     function refund(uint _uid) public {
@@ -76,10 +74,6 @@ contract User is usingOraclize,Ownable {
       e_refund(_uid);
     }
 
-    //function month_fee() {
-    //
-    //}
-
     function deposit(uint _uid) payable {
       require(uidToNum[_uid] > 0); // it is not working!
       User storage taxpayer = users[uidToId[_uid]];
@@ -91,17 +85,26 @@ contract User is usingOraclize,Ownable {
         //using Oraclize
         return 100000; //this line has to change
     }
+
     //@dev goverment can receive tax through this function
     //@dev require(!withdrawn) have to change to function with time
     function withdraw(uint _uid) public onlyOwner {
         User storage taxpayer = users[uidToId[_uid]];
         require(taxpayer.withdrawn == false); //check if already withdrawn
         uint etherFee =_getKrwToEther(taxpayer.fee_krw);
+
         if( taxpayer.balance >= etherFee ){
-          //goverment.transfer(etherFee);
-          goverment.transfer(taxpayer.balance); //this line has to change to above line
-          // taxpayer.balance = taxpayer.balance.sub(etherFee);
-          taxpayer.balance = taxpayer.balance.sub(taxpayer.balance); //this line has to change to above line
+          if(1){
+            if(this.balance <= etherfee){
+              etherfee = this.balance;
+              goverment.transfer(etherFee);
+              taxpayer.balance = taxpayer.balance.sub(etherFee);
+            }
+          } else {
+            goverment.transfer(taxpayer.balance); //this line has to change to above line
+            taxpayer.balance = taxpayer.balance.sub(taxpayer.balance);
+          }
+          
           taxpayer.withdrawn = true;
         }else{
 
