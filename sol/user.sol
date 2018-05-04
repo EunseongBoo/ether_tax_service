@@ -52,7 +52,7 @@ contract User is usingOraclize,Ownable {
       ownerToNum[msg.sender]++;
       _getFeeWon(id,_uid);
 
-      newUser(_uid);
+      emit newUser(_uid);
     }
 
     function checkUserInfo(uint _uid) external view  {
@@ -71,14 +71,14 @@ contract User is usingOraclize,Ownable {
       msg.sender.transfer(taxpayer.balance);
       taxpayer.balance = 0;
 
-      e_refund(_uid);
+      emit e_refund(_uid);
     }
 
     function deposit(uint _uid) payable {
       require(uidToNum[_uid] > 0); // it is not working!
       User storage taxpayer = users[uidToId[_uid]];
       taxpayer.balance = taxpayer.balance.add(msg.value);
-      e_deposit(_uid, taxpayer.balance);
+      emit e_deposit(_uid, taxpayer.balance);
     }
 
     function _getKrwToEther (uint _krw) private returns (uint){
@@ -94,9 +94,9 @@ contract User is usingOraclize,Ownable {
         uint etherFee =_getKrwToEther(taxpayer.fee_krw);
 
         if( taxpayer.balance >= etherFee ){
-          if(1){
-            if(this.balance <= etherfee){
-              etherfee = this.balance;
+          if(true){
+            if(this.balance <= etherFee){
+              etherFee = this.balance;
               goverment.transfer(etherFee);
               taxpayer.balance = taxpayer.balance.sub(etherFee);
             }
@@ -104,7 +104,7 @@ contract User is usingOraclize,Ownable {
             goverment.transfer(taxpayer.balance); //this line has to change to above line
             taxpayer.balance = taxpayer.balance.sub(taxpayer.balance);
           }
-          
+
           taxpayer.withdrawn = true;
         }else{
 
